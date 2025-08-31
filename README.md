@@ -9,8 +9,6 @@ assistance.
 
 1. Install dependencies:
    ```bash
-   pip install openai
-   ```
 2. Export your API key:
    ```bash
    export OPENAI_API_KEY="<your_api_key>"
