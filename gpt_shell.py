@@ -3,18 +3,19 @@ import subprocess
 import sys
 
 try:
-    from openai import OpenAI
+    import google.generativeai as genai
 except ImportError:
-    print("The 'openai' package is required. Install with `pip install openai`.")
+    print("The 'google-generativeai' package is required. Install with `pip install google-generativeai`.")
     sys.exit(1)
 
 def main() -> None:
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("Please set the OPENAI_API_KEY environment variable.")
-        return
-
-    client = OpenAI(api_key=api_key)
+    # Configure Google Generative AI with the provided API key
+    api_key = "AIzaSyAeUWiKEIDwHr6EcONJGbjUMzhJr0uujek"
+    genai.configure(api_key=api_key)
+    
+    # Initialize the model
+    model = genai.GenerativeModel('gemini-pro')
+    
     print("Type instructions for the assistant. Type 'exit' to quit.")
 
     while True:
@@ -31,12 +32,15 @@ def main() -> None:
             "for a Unix-like environment. Only return the command itself."
         )
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user}],
-        )
+        try:
+            # Use Google Generative AI to generate the response
+            full_prompt = f"{prompt}\n\nUser request: {user}"
+            response = model.generate_content(full_prompt)
+            command = response.text.strip()
+        except Exception as e:
+            print(f"Error generating response: {e}")
+            continue
 
-        command = response.choices[0].message.content.strip()
         print(f"Assistant suggests: {command}")
         confirm = input("Run this command? [y/N] ").strip().lower()
         if confirm == "y":
